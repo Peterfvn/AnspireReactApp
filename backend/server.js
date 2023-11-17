@@ -3,7 +3,6 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
-//import dbConnection from './config/dbConfig.js' // Via this import, it sets up the connection, not using this currently, might not need to.
 
 const app = express();
 app.use(cors({
@@ -276,7 +275,7 @@ app.get('/adminCount', async (req, res) => {
 
 app.get('/customerCount', async (req, res) => {
     try {
-        const query = "Select count(id) as users from combined_data";
+        const query = "Select COUNT(ID) as users from combined_data";
         const result = await con.query(query);
 
         res.json(result.recordset[0]);
@@ -326,8 +325,6 @@ app.post('/add', async (req, res) => {
         return res.json({ Status: 'Error', Error: 'Error in running query' });
     }
 });
-
-// Changes not done *****************************************************************
 
 app.post('/advanceLogin', async(req, res) => {
     try {
@@ -426,7 +423,6 @@ app.post('/promoteUser/:id', async (req, res) => {
 
         // Promote user to 'advance_user' table
         const userToPromote = checkRegularUserResult.recordset[0];
-        console.log("Password being inserted: ", userToPromote.password, " Length: ", userToPromote.password.length);
         const insertAdvanceUserQuery = "INSERT INTO advance_user (email, role, password) VALUES (@email, 'advance_user', @password)";
         const insertAdvanceUserResult = await con.request()
         .input('email', sql.VarChar(30), userToPromote.email)
@@ -447,23 +443,82 @@ app.post('/promoteUser/:id', async (req, res) => {
 });
 
 app.post('/createUser', async (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
     try {
-        const { email, password } = req.body;
-        hashedPassword = await bcrypt.hash(password, 10);
+
+        console.log("email", email);
+        console.log("password ", password);
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        console.log("hashed password");
         const createUserQuery = "INSERT INTO users (email, role, password) VALUES (@email, 'user', @password)";
-        const result = con.request()
+        const result = await con.request()
         .input('email', sql.VarChar(30), email)
-        .input('password', sql.NVarChar(50), hashedPassword)
+        .input('password', sql.NVarChar(60), hashedPassword)
         .query(createUserQuery);
 
         res.json({ Status: 'Success', Message: 'User created successfully' });
     } catch (err) {
         console.error('Error creating user:', err);
         res.status(500).json({ Status: 'Error', Error: 'Error creating user' });
-    } finally {
-        await sql.close();
     }
 });
+
+app.post('/filteredSearch', async (req, res) => {
+    let {
+        ID, 
+        name,
+        email,
+        device_payment_plan,
+        credit_card,
+        credit_card_type,
+        account_last_payment_date,
+        address,
+        state,
+        postal_code
+    } = req.body;
+    try {
+        const query = `SELECT * FROM combined_data 
+        WHERE ID like @ID and name like @name and email like @email 
+        and device_payment_plan like @device_payment_plan and credit_card like @credit_card 
+        and credit_card_type like @credit_card_type 
+        and account_last_payment_date >= @account_last_payment_range
+        and address like @address and state like @state and postal_code like @postal_code`;
+        ID = '%' + ID + '%'; // Create one for each parameter so that it searches for contains, not exact match.
+        name = '%' + name + '%';
+        email = '%' + email + '%';
+        device_payment_plan = '%' + device_payment_plan + '%';
+        credit_card = '%' + credit_card + '%';
+        credit_card_type = '%' + credit_card_type + '%';
+        
+        // Handle the date to make it a valid type
+        let account_last_payment_date_range = '0001-01-01'; // Sets default value of low date
+        if(account_last_payment_date) { // Checks if it is null or not (if null, set as lowest date)
+            account_last_payment_date_range = account_last_payment_date;
+        }
+
+        address = '%' + address + '%';
+        state = '%' + state + '%';
+        postal_code = '%' + address + '%';
+        const result = await con.request()
+        .input('ID', sql.NVarChar(50), ID)
+        .input('name', sql.NVarChar, name)
+        .input('email', sql.VarChar(100), email)
+        .input('device_payment_plan', sql.NVarChar, device_payment_plan)
+        .input('credit_card', sql.NVarChar, credit_card)
+        .input('credit_card_type', sql.NVarChar, credit_card_type)
+        .input('account_last_payment_range', account_last_payment_date_range)
+        .input('address', sql.NVarChar, address)
+        .input('state', sql.NVarChar, state)
+        .input('postal_code', sql.NVarChar, postal_code)
+        .query(query);
+        res.json({ Status: 'Success', Message: 'Sorting done successfully' });
+    } catch (err) {
+        console.error('Error Sorting:', err);
+        res.status(500).json({ Status: 'Error', Error: 'Error Sorting' });
+    }
+})
 
 app.listen(8081, () => {
     console.log("Running")
