@@ -20,7 +20,7 @@ function EditCustomer() {
 	})   
 
 	useEffect(() => {
-		axios.get('http://localhost:8081/get/' + id)
+		axios.get('https://anspiredb.onrender.com/get/' + id)
 		  .then(res => {
 			const [customerData] = res.data.Result;
 			let Services = [];
@@ -75,7 +75,7 @@ function EditCustomer() {
 
     const handleSubmit = (event) => {
 		event.preventDefault();
-		axios.put('http://localhost:8081/update/' + id, data)
+		axios.put('https://anspiredb.onrender.com/update/' + id, data)
 		.then(res => {
             if(res.data.Status === "Success"){
                 navigate('/customer')

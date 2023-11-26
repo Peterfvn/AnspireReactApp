@@ -10,7 +10,7 @@ function AdvanceUser() {
 
   useEffect(() => {
     // Fetch the list of advance users from the server
-    axios.get('http://localhost:8081/getAdvanceUser')
+    axios.get('https://anspiredb.onrender.com/getAdvanceUser')
       .then((res) => {
         if (res.data.Status === 'Success') {
           setAdvanceUser(res.data.Result);
@@ -23,7 +23,7 @@ function AdvanceUser() {
 
   useEffect(() => {
     // Fetch the list of regular users from the server
-    axios.get('http://localhost:8081/getUser')
+    axios.get('https://anspiredb.onrender.com/getUser')
       .then((res) => {
         if (res.data.Status === 'Success') {
           setUsers(res.data.Result);
@@ -36,7 +36,7 @@ function AdvanceUser() {
 
   const handlePromoteUser = (id) => {
     console.log("Promote button clicked for user with ID:", id);
-    axios.post(`http://localhost:8081/promoteUser/` + id)
+    axios.post(`https://anspiredb.onrender.com/promoteUser/` + id)
       .then((res) => {
         console.log("PromoteUser response:", res.data);
         
@@ -51,7 +51,7 @@ function AdvanceUser() {
   
   const handleDemoteUser = (id) => {
     console.log("Demote button clicked for user with ID:", id);
-    axios.post(`http://localhost:8081/demoteUser/` + id)
+    axios.post(`https://anspiredb.onrender.com/demoteUser/` + id)
       .then((res) => {
         console.log("DemoteUser response:", res.data);
         if (res.data.Status === 'Success') {

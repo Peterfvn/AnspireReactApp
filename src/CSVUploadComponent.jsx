@@ -23,7 +23,7 @@ const CSVUploadComponent = () => {
 
         try {
             setUploadStatus('Uploading...');
-            await axios.post('http://localhost:8081/upload-csv', formData, {
+            await axios.post('https://anspiredb.onrender.com/upload-csv', formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data',
                 },

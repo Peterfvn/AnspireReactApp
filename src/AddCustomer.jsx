@@ -46,7 +46,7 @@ function AddCustomer() {
 			postal_code: data.postal_code,
 			ServiceTypes: data.ServiceTypes
 		};
-		axios.post('http://localhost:8081/add', formdata)
+		axios.post('https://anspiredb.onrender.com/add', formdata)
 		.then(res => {
 			navigate('/customer')
 		})

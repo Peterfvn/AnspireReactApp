@@ -16,7 +16,7 @@ function CustomerLogin() {
 
     const handleSubmit = (event) => {
         event.preventDefault();
-        axios.post('http://localhost:8081/customerLogin', values)
+        axios.post('https://anspiredb.onrender.com/customerLogin', values)
         .then(res => {
             if(res.data.Status === 'Success') {
                 const id = res.data.id;

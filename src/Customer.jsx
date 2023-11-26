@@ -14,7 +14,7 @@ function Customer({ isDarkMode }) {
     const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
     useEffect(() => {
-        axios.get('http://localhost:8081/getCustomer')
+        axios.get('https://anspiredb.onrender.com/getCustomer')
             .then(res => {
                 if (res.data.Status === "Success") {
                     console.log(res.data.Result)
@@ -42,7 +42,7 @@ function Customer({ isDarkMode }) {
     }
 
     const handleDelete = (id) => {
-        axios.delete('http://localhost:8081/delete/' + id)
+        axios.delete('https://anspiredb.onrender.com/delete/' + id)
             .then(res => {
                 if (res.data.Status === "Success") {
                     window.location.reload(true);
@@ -109,7 +109,7 @@ function Customer({ isDarkMode }) {
     };
 
     const handleFilterSubmit = (inputValues) => {
-        axios.post('http://localhost:8081/filteredSearch', inputValues)
+        axios.post('https://anspiredb.onrender.com/filteredSearch', inputValues)
         .then(res => {
             if (res.data.Status === "Success") {
                 console.log(res.data.Result)

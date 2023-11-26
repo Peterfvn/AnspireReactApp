@@ -5,7 +5,7 @@ import { useNavigate, useParams, Link } from 'react-router-dom'
 function CustomerDetail() {
     const [data, setData] = useState([])
     useEffect(() => {
-        axios.get('http://localhost:8081/getCustomer')
+        axios.get('https://anspiredb.onrender.com/getCustomer')
             .then(res => {
                 if (res.data.Status === "Success") {
                     console.log(res.data.Result.recordset)

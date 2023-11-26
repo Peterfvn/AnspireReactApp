@@ -10,7 +10,7 @@ function Dashboard({ isDarkMode, toggleDarkMode }) {
 	const navigate = useNavigate()
 	axios.defaults.withCredentials = true;
 	useEffect(() => {
-		axios.get('http://localhost:8081/userDashboard')
+		axios.get('https://anspiredb.onrender.com/userDashboard')
 			.then(res => {
 				if (res.data.Status === "Success") {
 					if (res.data.role === "user") {
@@ -23,38 +23,11 @@ function Dashboard({ isDarkMode, toggleDarkMode }) {
 	}, [])
 
 	const handleLogout = () => {
-		axios.get('http://localhost:8081/logout')
+		axios.get('https://anspiredb.onrender.com/logout')
 			.then(res => {
 				navigate('/start')
 			}).catch(err => console.log(err));
 	}
-
-	// This is the original UserDashboard component. The uncommented portion is the Dashboard component. Modify to display properly.
-	// return (
-	// 	<div className={`container-fluid ${isDarkMode ? 'dark-mode' : ''}`}>
-	// 		<div className="row flex-nowrap">
-	// 			<div className="col-auto col-md-3 col-xl-2 d-flex flex-column w-auto px-2 px-sm-0 bg-dark">
-	// 				<div className="d-flex flex-column align-items-center align-items-sm-start px-3 pt-3 text-white min-vh-100">
-	// 					<a href="/" className="d-flex align-items-center pb-3 mb-md-1 mt-md-3 me-md-auto text-white text-decoration-none">
-	// 						<span className="fs-4 fw-bold d-none d-sm-inline">Dashboard</span>
-	// 					</a>
-	// 					<ul className="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-	// 						<li onClick={handleLogout}>
-	// 							<a href="#" className="nav-link px-0 align-middle text-white">
-	// 								<i className="fs-4 bi-power me-2"></i> <span className="ms-1 d-none d-sm-inline">Logout</span></a>
-	// 						</li>
-	// 					</ul>
-	// 				</div>
-	// 			</div>
-	// 			<div className="col p-0 m-0 ">
-	// 				<div className='p-3 d-flex justify-content-center shadow'>
-	// 					<h4 className="text-center">Customers Management System</h4>
-	// 				</div>
-	// 				<Outlet />
-	// 			</div>
-	// 		</div>
-	// 	</div>
-	// )
 
 	return (
 		<div className={`container-fluid ${isDarkMode ? 'dark-mode' : ''}`}>

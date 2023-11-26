@@ -15,7 +15,7 @@ function CreateUser() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    axios.post('http://localhost:8081/createUser', values)
+    axios.post('https://anspiredb.onrender.com/createUser', values)
       .then((res) => {
         if (res.data.Status === 'Success') {
           navigate('/');
