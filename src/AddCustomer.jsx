@@ -7,19 +7,30 @@ function AddCustomer() {
         ID: '',
 		name: '',
 		email: '',
-		service_type: '',
         device_payment_plan: '',
         credit_card: '',
         credit_card_type: '',
         account_last_payment_date: '',
 		address: '',
 		state: '',
-		postal_code: ''
+		postal_code: '',
+		ServiceTypes: ''
 	})
-	const navigate = useNavigate()
-	const [csvFile, setCsvFile] = useState(null)
 
+	const handleInputChange = (e) => {
+		const { value, checked } = e.target;
+
+		setData((prevData) => ({
+			...prevData,
+			ServiceTypes: checked
+			? [...prevData.ServiceTypes, value]
+			: prevData.ServiceTypes.filter((type) => type !== value),
+		}));
+	}
+
+	const navigate = useNavigate()
 	const handleSubmit = (event) => {
+		console.log(data)
 		event.preventDefault();
 		const formdata = {
 			ID: data.ID,
@@ -32,7 +43,8 @@ function AddCustomer() {
 			account_last_payment_date: data.account_last_payment_date,
 			address: data.address,
 			state: data.state,
-			postal_code: data.postal_code
+			postal_code: data.postal_code,
+			ServiceTypes: data.ServiceTypes
 		};
 		axios.post('http://localhost:8081/add', formdata)
 		.then(res => {
@@ -55,16 +67,33 @@ function AddCustomer() {
 					<input type="email" className ="form-control" id="inputEmail" placeholder='Enter Email' autoComplete='off'
 					onChange={e => setData({...data, email: e.target.value})}/>
 				</div>
-				<div className ="col-12">
-					<label htmlFor="inputServiceType" className ="form-label">Service Type</label>
-					<input type="text" className ="form-control" id="inputServiceType" placeholder='Enter Service Type' autoComplete='off'
-					 onChange={e => setData({...data, service_type: e.target.value})}/>
-				</div>
-				<div className ="col-12">
-					<label htmlFor="inputDevicePaymentPlan" className ="form-label">Device Payment Plan</label>
-					<input type="text" className ="form-control" id="inputDevicePaymentPlan" placeholder="Enter Device Payment Plan" autoComplete='off'
-					onChange={e => setData({...data, device_payment_plan: e.target.value})}/>
-				</div>
+				<div className="col-12">
+                <label htmlFor="inputDevicePaymentPlan" className="form-label">Device Payment Plan</label>
+                <div>
+                    <label>
+                        TRUE
+                        <input
+                            type="radio"
+                            name="devicePaymentPlan"
+                            value="TRUE"
+                            checked={data.device_payment_plan === 'TRUE'}
+                            onChange={e => setData({...data, device_payment_plan: e.target.value})}
+                        />
+                    </label>
+                </div>
+                <div>
+                    <label>
+                        FALSE
+                        <input
+                            type="radio"
+                            name="devicePaymentPlan"
+                            value="FALSE"
+                            checked={data.device_payment_plan === 'FALSE'}
+                            onChange={e => setData({...data, device_payment_plan: e.target.value})}
+                        />
+                    </label>
+                </div>
+            </div>
                 <div className ="col-12">
 					<label htmlFor="inputCreditCardNumber" className ="form-label">Credit Card Number</label>
 					<input type="text" className ="form-control" id="inputCreditCardNumber" placeholder="Enter Credit Card Number" autoComplete='off'
@@ -94,6 +123,33 @@ function AddCustomer() {
 					<label htmlFor="inputPostalCode" className ="form-label">Postal Code</label>
 					<input type="text" className ="form-control" id="inputPostalCode" placeholder="Enter Postal Code" autoComplete='off'
 					onChange={e => setData({...data, postal_code: e.target.value})}/>
+				</div>
+				<div className ="col-12">
+					<label htmlFor="inputServices" className = "form-label">Services</label>
+					<div>
+					<label>
+					Wireless
+					<input
+						type="checkbox"
+						name="ServiceTypes"
+						value="Wireless"
+						checked={data.ServiceTypes.includes('Wireless')}
+						onChange={handleInputChange}
+					/>
+					</label>
+					</div>
+					<div>
+					<label>
+					Fiber
+					<input
+						type="checkbox"
+						name="ServiceTypes"
+						value="Fiber"
+						checked={data.ServiceTypes.includes('Fiber')}
+						onChange={handleInputChange}
+					/>
+					</label>
+				</div>
 				</div>
 				<div className ="col-12">
 					<button type="submit" className ="btn btn-primary">Add</button>

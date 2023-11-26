@@ -1,29 +1,18 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 import './style.css'
 import FilterOverlay from './FilterOverlay.jsx'
-import CSVUploadComponent from './CSVUploadComponent'
+import { useUser } from './UserContext.jsx'
 
 function Customer({ isDarkMode }) {
+    const { userRole } = useUser(); // Establish Permissions
+
     const [data, setData] = useState([])
     const [showOverlay, setShowOverlay] = useState(false)
     const [searchQuery, setSearchQuery] = useState('')
     const [sortBy, setSortBy] = useState(null);
     const [sortOrder, setSortOrder] = useState('asc');
-    const [selectedColumn, setSelectedColumn] = useState('');
-    const [searchValues, setSearchValues] = useState({
-        ID: '',
-        name: '',
-        email: '',
-        device_payment_plan: '',
-        credit_card: '',
-        credit_card_type: '',
-        account_last_payment_date: '',
-        address: '',
-        state: '',
-        postal_code: '',
-      });  
     useEffect(() => {
         axios.get('http://localhost:8081/getCustomer')
             .then(res => {
@@ -41,13 +30,6 @@ function Customer({ isDarkMode }) {
         setShowOverlay(!showOverlay);
       };
 
-    const handleSearchChange = (column, value) => {
-        setSearchValues((prevValues) => ({
-            ...prevValues,
-            [column]: value,
-        }));
-    };
-
     // Handles the sorting when clicking on the column
     const handleClick = (column) => {
         if(sortBy === column) { // Clicking on same column, change from asc to desc
@@ -58,10 +40,6 @@ function Customer({ isDarkMode }) {
         }
 
     }
-
-    const handleColumnSelect = (column) => {
-        setSelectedColumn(column);
-      };
 
     const handleDelete = (id) => {
         axios.delete('http://localhost:8081/delete/' + id)
@@ -79,16 +57,17 @@ function Customer({ isDarkMode }) {
         const searchString = searchQuery.toLowerCase().split(' ');
         return searchString.every((term) => {
             return (
-                customer.ID.toLowerCase().includes(term) ||
-                customer.name.toLowerCase().includes(term) ||
-                customer.email.toLowerCase().includes(term) ||
-                customer.device_payment_plan.toLowerCase().includes(term) ||
-                customer.credit_card.toLowerCase().includes(term) ||
-                customer.credit_card_type.toLowerCase().includes(term) ||
-                customer.account_last_payment_date.toLowerCase().includes(term) ||
-                customer.address.toLowerCase().includes(term) ||
-                customer.state.toLowerCase().includes(term) ||
-                customer.postal_code.toLowerCase().includes(term)
+                customer.ID.toLowerCase().includes(term) || // This value cant be null
+                (customer.name?.toLowerCase() ?? '').includes(term) || // If the value is null, it uses empty string
+                (customer.email?.toLowerCase() ?? '').includes(term) ||
+                (customer.device_payment_plan?.toLowerCase() ?? '').includes(term) ||
+                (customer.credit_card?.toLowerCase() ?? '').includes(term) ||
+                (customer.credit_card_type?.toLowerCase() ?? '').includes(term) ||
+                (customer.account_last_payment_date?.toLowerCase() ?? '').includes(term) ||
+                (customer.address?.toLowerCase() ?? '').includes(term) ||
+                (customer.state?.toLowerCase() ?? '').includes(term) ||
+                (customer.postal_code?.toLowerCase() ?? '').includes(term) ||
+                (customer.ServiceTypes?.toLowerCase() ?? '').includes(term)
             );
         });
     })
@@ -130,13 +109,13 @@ function Customer({ isDarkMode }) {
     };
 
     const handleFilterSubmit = (inputValues) => {
-        console.log("Submitted: ", inputValues)
         axios.post('http://localhost:8081/filteredSearch', inputValues)
         .then(res => {
             if (res.data.Status === "Success") {
-                window.location.reload(true);
+                console.log(res.data.Result)
+                setData(res.data.Result);
             } else {
-                alert("Error")
+                alert("Error in Filter")
             }
         })
         .catch(err => console.log(err));
@@ -146,21 +125,10 @@ function Customer({ isDarkMode }) {
         <div className="px-5">
 
              {/* Button to toggle the overlay */}
-      <button onClick={toggleOverlay}>Open Overlay</button>
+      <button className='button-28 mb-2 mt-3 filter-button' onClick={toggleOverlay}>Filters</button>
 
 {/* Overlay component */}
 {showOverlay && <FilterOverlay onClose={toggleOverlay} onFilterSubmit={handleFilterSubmit}/>}
-
-      {selectedColumn && (
-        <div>
-          <label>{selectedColumn}:</label>
-          <input
-            type="text"
-            value={searchValues[selectedColumn]}
-            onChange={(e) => handleSearchChange(e.target.value)}
-          />
-        </div>
-      )}
             <div className='search__container'>
                 <div className='search__title'>
                     <input
@@ -173,8 +141,12 @@ function Customer({ isDarkMode }) {
                 </div>
 
                 <div className="d-flex justify-content-between">
+                    {userRole !== 'user' && (
+                        <>
                     <Link to="/add" className='button-28 mb-3 mt-3'>Add Customer</Link>
                     <Link to="/CSVUploadComponent" className='button-29 mb-3 mt-3'>Upload CSV</Link>
+                    </>
+                    )}
                     <button className='button-29 mb-3 mt-3' onClick={exportCSV}>
                         Export CSV
                     </button>
@@ -197,7 +169,12 @@ function Customer({ isDarkMode }) {
                             <th onClick={() => handleClick('address')}>Address</th>
                             <th onClick={() => handleClick('state')}>State</th>
                             <th onClick={() => handleClick('postal_code')}>Postal Code</th>
+                            <th onClick={() => handleClick('ServiceTypes')}>Services</th>
+                            {userRole !== 'user' && (
+                            <>
                             <th className="Actions">Actions</th>
+                            </>
+                            )}
                         </tr>
                     </thead>
                     <tbody>
@@ -213,17 +190,24 @@ function Customer({ isDarkMode }) {
                                 <td>{customer.address}</td>
                                 <td>{customer.state}</td>
                                 <td>{customer.postal_code}</td>
+                                <td>{customer.ServiceTypes}</td>
+                                {userRole !== 'user' && (
+                                    <>
                                 <td >
 
                                     <Link to={`/editCustomer/` + customer.ID} className='button-44 mb-1'>
                                         Update
                                     </Link>
-
-                                    <button onClick={e => handleDelete(customer.ID)} className='button-45'>
+                                    {userRole === 'admin' && (
+                                        <>
+                                        <button onClick={e => handleDelete(customer.ID)} className='button-45'>
                                         Delete
-                                    </button>
-
+                                        </button>
+                                        </>
+                                    )}
                                 </td>
+                                </>
+                                )}
                             </tr>
                         })}
                     </tbody>
