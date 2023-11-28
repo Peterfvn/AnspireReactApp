@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import './style.css'
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from './UserContext'
 
 function CreateUser() {
   const [values, setValues] = useState({
     email: '',
     password: '',
   });
-  const { setUserRole } = useUser();
+
   const navigate = useNavigate();
   axios.defaults.withCredentials = true;
   const [error, setError] = useState('');
@@ -19,7 +18,6 @@ function CreateUser() {
     axios.post('https://anspiredb.onrender.com/createUser', values)
       .then((res) => {
         if (res.data.Status === 'Success') {
-          setUserRole(res.data.Role); // Set permission to data.Role (from server side)
           navigate('/');
         } else {
           setError(res.data.Error);
